@@ -52,7 +52,7 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF383838), //color de header
         title: const Text(
-          "Memora",
+          "Memoraaaaaaaaaaaaa",
           style: TextStyle(color: Color(0xFFFFFFFF),), // texto blanco
         ),
         centerTitle: true,
