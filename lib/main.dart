@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'models/alert_item.dart';
+import 'data/sample_alerts.dart';
 
 void main() => runApp(const MemoraApp());
 
@@ -12,7 +14,7 @@ class MemoraApp extends StatelessWidget {
       title: 'Memora',
       theme: ThemeData(
         useMaterial3: true,
-        colorSchemeSeed: Colors.white,
+        colorSchemeSeed: Colors.white, // lo dejo como lo tenías
       ),
       home: const HomePage(),
     );
@@ -26,43 +28,47 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
+class _MySeparator extends StatelessWidget {
+  const _MySeparator({super.key});
+  @override
+  Widget build(BuildContext context) => const SizedBox(height: 0);
+}
+
 class _HomePageState extends State<HomePage> {
-  // Lista de alertas simuladas (por ahora texto fijo).
-  final List<String> _alerts = [
-    "Recordar entregar el trabajo práctico",
-    "Comprar hojas A4",
-    "Visitar la biblioteca"
-  ];
+  // Traemos datos iniciales (modelo AlertItem) desde sample_alerts.dart
+  final List<AlertItem> _alerts = List.from(sampleAlerts);
 
   void _addAlert() {
-    // Más adelante: abrir pantalla o modal para crear alerta.
-    // Por ahora, añadimos un ejemplo rápido.
     setState(() {
-      _alerts.add("Nueva alerta generada");
+      _alerts.add(AlertItem("Probando", enabled: true));
     });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF525252), //color de fondo
+      backgroundColor: const Color(0xFF525252), // color de fondo
 
-
-      //header
+      // Header
       appBar: AppBar(
-        backgroundColor: const Color(0xFF383838), //color de header
+        backgroundColor: const Color(0xFF383838), // color de header
         title: const Text(
-          "Memoraaaaaaaaaaaaa",
-          style: TextStyle(color: Color(0xFFFFFFFF),), // texto blanco
+          "Memora",
+          style: TextStyle(color: Color(0xFFFFFFFF)), // texto blanco
         ),
         centerTitle: true,
       ),
 
-
+      // Lista con Scrollbar
       body: _alerts.isEmpty
-          ? const Center(child: Text("No hay alertas aún"))
+          ? const Center(
+        child: Text(
+          "No hay alertas aún",
+          style: TextStyle(color: Colors.white),
+        ),
+      )
           : Scrollbar(
-        thumbVisibility: true, // hace visible la barra de scroll
+        thumbVisibility: true,
         child: ListView.builder(
           itemCount: _alerts.length,
           itemBuilder: (context, index) {
@@ -71,21 +77,33 @@ class _HomePageState extends State<HomePage> {
               margin: const EdgeInsets.symmetric(
                   vertical: 6.0, horizontal: 12.0),
               child: ListTile(
-                leading: const Icon(Icons.location_on, color: Colors.red),
-                title: Text(alert),
+                leading:
+                const Icon(Icons.location_on, color: Colors.red),
+                title: Text(alert.title),
+                trailing: Switch.adaptive(
+                  value: alert.enabled,
+                  onChanged: (val) {
+                    setState(() => alert.enabled = val);
+                    // aquí luego vas a activar/desactivar la geocerca real
+                  },
+                  // (opcional) personalización suave del switch
+                  activeColor: const Color(0xFF1E3A8A),
+                  inactiveThumbColor: const Color(0xFFDDE3F1),
+                  inactiveTrackColor: const Color(0xFF3B4148),
+                ),
+                //onTap: () =>
+                    //setState(() => alert.enabled = !alert.enabled),
               ),
             );
           },
         ),
       ),
 
-
-
-      //botón para añadir alertas
+      // Botón para añadir alertas
       floatingActionButton: FloatingActionButton(
         onPressed: _addAlert,
-        backgroundColor: const Color(0xFFFFFFFF), // color de fondo (azul en este caso)
-        foregroundColor: const Color(0xFF000000), // color del ícono (blanco)
+        backgroundColor: const Color(0xFFFFFFFF), // color de fondo
+        foregroundColor: const Color(0xFF000000), // color del ícono
         child: const Icon(Icons.add),
       ),
     );
