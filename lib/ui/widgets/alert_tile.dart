@@ -7,10 +7,12 @@ class AlertTile extends StatelessWidget {
     super.key,
     required this.alert,
     required this.onChanged,
+    this.onTap, //callback opcional
   });
 
   final AlertItem alert;
   final ValueChanged<bool> onChanged;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -25,6 +27,7 @@ class AlertTile extends StatelessWidget {
           inactiveThumbColor: kSwitchThumbInactive,
           inactiveTrackColor: kSwitchTrackInactive,
         ),
+        onTap: onTap, // abre la edición
       ),
     );
   }
