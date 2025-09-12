@@ -10,8 +10,8 @@ class CategoryAlertFormPage extends StatefulWidget {
     this.initialTitle,
     this.initialRadius = 500,
     this.initialCategoryId,
-    required this.categories, // lista de categorías disponibles
-    this.onDelete,            // opcional: callback si querés ejecutar algo extra al borrar
+    required this.categories,
+    this.onDelete,
   });
 
   final bool isEditing;
@@ -69,14 +69,15 @@ class _CategoryAlertFormPageState extends State<CategoryAlertFormPage> {
   }
 
   void _delete() {
-    widget.onDelete?.call(); // opcional
+    widget.onDelete?.call();
     Navigator.of(context).pop('__DELETE__');
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Respeta tu estilo de AppBar y colores
+      // Mantén true (por defecto) para que el body reciba el nuevo alto
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         title: Text(widget.isEditing ? 'Editar alerta' : 'Nueva alerta'),
         actions: [
@@ -88,86 +89,101 @@ class _CategoryAlertFormPageState extends State<CategoryAlertFormPage> {
             ),
         ],
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Nota (mismo look & feel que tu CreateAlertPage)
-            TextField(
-              controller: _titleCtrl,
-              autofocus: !widget.isEditing,
-              style: const TextStyle(color: Colors.black), // letras negras
-              textInputAction: TextInputAction.done,
-              minLines: 6,
-              maxLines: 6,
-              maxLength: 255,
-              onSubmitted: (_) => _save(),
-              decoration: const InputDecoration(
-                hintText: 'Añadir nota. Ej: Comprar lapiceras.',
-                counterStyle: TextStyle(color: Colors.white),
-              ),
-            ),
 
-            const SizedBox(height: 16),
+      // ⬇️ Reemplazo del body para evitar overflow con teclado
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final bottomInset = MediaQuery.of(context).viewInsets.bottom;
+          return SingleChildScrollView(
+            padding: EdgeInsets.fromLTRB(16, 16, 16, 16 + bottomInset),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: IntrinsicHeight(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Nota
+                    TextField(
+                      controller: _titleCtrl,
+                      autofocus: !widget.isEditing,
+                      style: const TextStyle(color: Colors.black),
+                      textInputAction: TextInputAction.done,
+                      minLines: 6,
+                      maxLines: 6,
+                      maxLength: 255,
+                      onSubmitted: (_) => _save(),
+                      decoration: const InputDecoration(
+                        hintText: 'Añadir nota. Ej: Comprar lapiceras.',
+                        // Si tu contador se ve muy claro, puedes ponerlo negro:
+                        counterStyle: TextStyle(color: Colors.white),
+                      ),
+                    ),
 
-            // Selector de categoría
-            const Text('Categoría', style: TextStyle(color: Colors.white, fontSize: 16)),
-            const SizedBox(height: 8),
-            DropdownButtonFormField<int>(
-              value: _categoryId,
-              items: widget.categories
-                  .map(
-                    (c) => DropdownMenuItem<int>(
-                  value: c.id,
-                  child: Text(c.name),
+                    const SizedBox(height: 16),
+
+                    // Categoría
+                    const Text('Categoría',
+                        style: TextStyle(color: Colors.white, fontSize: 16)),
+                    const SizedBox(height: 8),
+                    DropdownButtonFormField<int>(
+                      value: _categoryId,
+                      items: widget.categories
+                          .map(
+                            (c) => DropdownMenuItem<int>(
+                          value: c.id,
+                          child: Text(c.name),
+                        ),
+                      )
+                          .toList(),
+                      onChanged: (v) => setState(() => _categoryId = v),
+                    ),
+
+                    const SizedBox(height: 24),
+
+                    // Slider
+                    Text('Distancia de detección: ${_radius.round()} m',
+                        style:
+                        const TextStyle(color: Colors.white, fontSize: 16)),
+                    Slider(
+                      value: _radius,
+                      min: 200,
+                      max: 1000,
+                      divisions: 8,
+                      label: '${_radius.round()} m',
+                      onChanged: (val) => setState(() => _radius = val),
+                    ),
+
+                    const Spacer(),
+
+                    // Botonera
+                    SafeArea(
+                      top: false,
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton(
+                              onPressed: () => Navigator.of(context).pop(),
+                              child: const Text('Cancelar'),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: FilledButton(
+                              onPressed: _save,
+                              child: Text(widget.isEditing
+                                  ? 'Guardar cambios'
+                                  : 'Guardar'),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
-              )
-                  .toList(),
-              onChanged: (v) => setState(() => _categoryId = v),
-            ),
-
-            const SizedBox(height: 24),
-
-            // Slider de distancia (mismo estilo que el original)
-            Text(
-              'Distancia de detección: ${_radius.round()} m',
-              style: const TextStyle(color: Colors.white, fontSize: 16),
-            ),
-            Slider(
-              value: _radius,
-              min: 200,
-              max: 1000,
-              divisions: 8, // pasos de 100
-              label: '${_radius.round()} m',
-              onChanged: (val) => setState(() => _radius = val),
-            ),
-
-            const Spacer(),
-
-            // Botonera
-            SafeArea(
-              top: false,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: OutlinedButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: const Text('Cancelar'),
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: FilledButton(
-                      onPressed: _save,
-                      child: Text(widget.isEditing ? 'Guardar cambios' : 'Guardar'),
-                    ),
-                  ),
-                ],
               ),
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
