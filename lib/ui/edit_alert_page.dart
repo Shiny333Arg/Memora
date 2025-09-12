@@ -4,9 +4,11 @@ class EditAlertPage extends StatefulWidget {
   const EditAlertPage({
     super.key,
     required this.initialText,
+    required this.initialRadius,
   });
 
   final String initialText;
+  final int initialRadius;
 
   @override
   State<EditAlertPage> createState() => _EditAlertPageState();
@@ -14,11 +16,13 @@ class EditAlertPage extends StatefulWidget {
 
 class _EditAlertPageState extends State<EditAlertPage> {
   late final TextEditingController _controller;
+  late double _radius;
 
   @override
   void initState() {
     super.initState();
     _controller = TextEditingController(text: widget.initialText);
+    _radius = widget.initialRadius.toDouble().clamp(200, 1000);
   }
 
   @override
@@ -35,7 +39,10 @@ class _EditAlertPageState extends State<EditAlertPage> {
       );
       return;
     }
-    Navigator.of(context).pop<String>(text); // devolvemos el nuevo título
+    Navigator.of(context).pop(<String, dynamic>{
+      'nota': text,
+      'radio': _radius.round(),
+    });
   }
 
   void _delete() {
@@ -68,10 +75,28 @@ class _EditAlertPageState extends State<EditAlertPage> {
               maxLength: 255,
               decoration: const InputDecoration(
                 hintText: 'Editar nota…',
-                counterStyle: TextStyle(color: Colors.black),
+                counterStyle: TextStyle(color: Colors.white),
               ),
               onSubmitted: (_) => _save(),
             ),
+
+
+            const SizedBox(height: 24),
+
+
+            Text(
+              'Distancia de detección: ${_radius.round()} m',
+              style: const TextStyle(color: Colors.white, fontSize: 16),
+            ),
+            Slider(
+              value: _radius,
+              min: 200,
+              max: 1000,
+              divisions: 8,
+              label: '${_radius.round()} m',
+              onChanged: (v) => setState(() => _radius = v),
+            ),
+
             const Spacer(),
             SafeArea(
               top: false,

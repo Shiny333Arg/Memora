@@ -10,6 +10,7 @@ class CreateAlertPage extends StatefulWidget {
 
 class _CreateAlertPageState extends State<CreateAlertPage> {
   final _controller = TextEditingController();
+  double _radius = 500;
 
   @override
   void dispose() {
@@ -25,16 +26,20 @@ class _CreateAlertPageState extends State<CreateAlertPage> {
       );
       return;
     }
-    Navigator.of(context).pop(text); // devolvemos el título
+    Navigator.of(context).pop({ //devuelvo los datos
+      "nota": text,
+      "radio": _radius.round(),
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Nueva alerta')),
+      appBar: AppBar(title: const Text('Añadir alerta')),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             TextField(
               controller: _controller,
@@ -51,6 +56,23 @@ class _CreateAlertPageState extends State<CreateAlertPage> {
                 hintText: 'Añadir nota. Ej: Comprar lapiceras.',
                 counterStyle: TextStyle(color: Colors.white),
               ),
+            ),
+
+            const SizedBox(height: 24),
+
+            Text(
+              "Distancia de detección: ${_radius.round()} m",
+              style: const TextStyle(color: Colors.white, fontSize: 16),
+            ),
+            Slider(
+              value: _radius,
+              min: 200,
+              max: 1000,
+              divisions: 8, // pasos de 100
+              label: "${_radius.round()} m",
+              onChanged: (val) {
+                setState(() => _radius = val);
+              },
             ),
 
             const Spacer(),
