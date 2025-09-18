@@ -249,7 +249,7 @@ class _HomePageState extends State<HomePage> {
           onPickPlace: () async {
             // TODO: reemplazar por selector de mapa real
             // Debe devolver { 'placeId': int, 'placeName': String }
-            return {'placeId': 10, 'placeName': 'Biblioteca Central'};
+            return {'placeId': 10, 'placeName': 'Biblioteca'};
           },
         ),
       ),
@@ -332,7 +332,7 @@ class _HomePageState extends State<HomePage> {
                 initialPlaceName: 'Lugar seleccionado', // opcional si guardas nombre
                 onPickPlace: () async {
                   // TODO: abrir mapa real
-                  return {'placeId': 11, 'placeName': 'Facultad de Ingeniería'};
+                  return {'placeId': 11, 'placeName': 'UNPA UACO'};
                 },
                 onDelete: () {
                   setState(() => _alerts.removeAt(index));
